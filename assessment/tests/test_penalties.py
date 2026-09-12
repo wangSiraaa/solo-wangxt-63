@@ -73,6 +73,23 @@ class EscalationTest(AssessmentTestCase):
 class LockAndCorrectionTest(AssessmentTestCase):
     """复核通过锁定处罚版本；更正只能追加，历史版本不可改。"""
 
+    def test_approve_review_response_shows_locked_version(self):
+        """approve-review 响应内当前版本必须是 locked:true，且与 GET 一致。"""
+        _, p1 = self.upload_photo(scene_bytes(1), dt(2026, 3, 1, 8), **GRID_A)
+        unit = PenaltyUnit.objects.get(event_id=p1["event"])
+
+        resp = self.api.post(f"/api/penalties/{unit.id}/approve-review/")
+        self.assertEqual(resp.status_code, 200)
+        current = max(resp.json()["versions"], key=lambda v: v["version"])
+        self.assertTrue(current["locked"])
+        self.assertIsNotNone(current["locked_at"])
+
+        # GET 同一资源，与 POST 响应一致
+        detail = self.api.get(f"/api/penalties/{unit.id}/").json()
+        current = max(detail["versions"], key=lambda v: v["version"])
+        self.assertTrue(current["locked"])
+        self.assertEqual(detail["versions"], resp.json()["versions"])
+
     def test_lock_and_append_only_correction(self):
         _, p1 = self.upload_photo(scene_bytes(1), dt(2026, 3, 1, 8), **GRID_A)
         unit = PenaltyUnit.objects.get(event_id=p1["event"])

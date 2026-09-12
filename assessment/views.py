@@ -157,6 +157,8 @@ class PenaltyUnitViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, views
         """复核通过：锁定当前处罚版本，之后更正只能追加。"""
         unit = self.get_object()
         services.approve_penalty(unit)
+        # 锁定的是新查出的版本实例，必须清掉 prefetch 缓存里的旧对象再序列化
+        unit.refresh_from_db()
         return Response(self.get_serializer(unit).data)
 
     @extend_schema(request=CorrectPenaltySerializer, responses=PenaltyUnitSerializer)
