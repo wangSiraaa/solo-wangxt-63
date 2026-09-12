@@ -1,0 +1,17 @@
+.venv/
+.pgroot/
+.pgdata/
+.pgdata.log
+media/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+config/local_settings.py

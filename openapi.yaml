@@ -1,0 +1,1374 @@
+openapi: 3.0.3
+info:
+  title: 街道环卫考核 API
+  version: 1.0.0
+  description: 道路网格 / 保洁合同 / 问题事件 / 照片证据 / 疑似重复候选 / 处罚单元。图片感知哈希只生成疑似重复候选，事件关联以位置、时间及人工判断为准；扣分按事件发生时的合同责任区间归属；复核通过锁定处罚版本，更正只能追加。
+paths:
+  /api/candidates/:
+    get:
+      operationId: candidates_list
+      description: 疑似重复候选：仅提示，合并与否由人工按位置、时间判断。
+      tags:
+      - candidates
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DuplicateCandidate'
+          description: ''
+  /api/candidates/{id}/:
+    get:
+      operationId: candidates_retrieve
+      description: 疑似重复候选：仅提示，合并与否由人工按位置、时间判断。
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 duplicate candidate 的 唯一整数值。
+        required: true
+      tags:
+      - candidates
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateCandidate'
+          description: ''
+  /api/candidates/{id}/confirm/:
+    post:
+      operationId: candidates_confirm_create
+      description: 确认两张照片是同一问题：合并事件，多余处罚作废。
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 duplicate candidate 的 唯一整数值。
+        required: true
+      tags:
+      - candidates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmCandidate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ConfirmCandidate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ConfirmCandidate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateCandidate'
+          description: ''
+  /api/candidates/{id}/reject/:
+    post:
+      operationId: candidates_reject_create
+      description: 确认不是同一问题；误传场景可作废后传照片及其孤立事件。
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 duplicate candidate 的 唯一整数值。
+        required: true
+      tags:
+      - candidates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectCandidate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RejectCandidate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RejectCandidate'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateCandidate'
+          description: ''
+  /api/contractors/:
+    get:
+      operationId: contractors_list
+      tags:
+      - contractors
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Contractor'
+          description: ''
+    post:
+      operationId: contractors_create
+      tags:
+      - contractors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Contractor'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Contractor'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Contractor'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contractor'
+          description: ''
+  /api/contractors/{id}/:
+    get:
+      operationId: contractors_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 contractor 的 唯一整数值。
+        required: true
+      tags:
+      - contractors
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contractor'
+          description: ''
+  /api/contracts/:
+    get:
+      operationId: contracts_list
+      tags:
+      - contracts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CleaningContract'
+          description: ''
+    post:
+      operationId: contracts_create
+      tags:
+      - contracts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CleaningContract'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CleaningContract'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CleaningContract'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CleaningContract'
+          description: ''
+  /api/contracts/{id}/:
+    get:
+      operationId: contracts_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 cleaning contract 的 唯一整数值。
+        required: true
+      tags:
+      - contracts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CleaningContract'
+          description: ''
+  /api/escalations/run/:
+    post:
+      operationId: escalations_run_create
+      description: 触发一轮逾期升级（基于可注入时钟），返回新追加的处罚版本。
+      tags:
+      - escalations
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EscalationResult'
+          description: ''
+  /api/events/:
+    get:
+      operationId: events_list
+      tags:
+      - events
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProblemEvent'
+          description: ''
+  /api/events/{id}/:
+    get:
+      operationId: events_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 problem event 的 唯一整数值。
+        required: true
+      tags:
+      - events
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemEvent'
+          description: ''
+  /api/events/{id}/rectification-callback/:
+    post:
+      operationId: events_rectification_callback_create
+      description: 整改回调（幂等）：相同幂等键重复上报返回原记录，不重复处理。
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 problem event 的 唯一整数值。
+        required: true
+      tags:
+      - events
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RectificationReport'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RectificationReport'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RectificationReport'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RectificationReport'
+          description: ''
+  /api/grids/:
+    get:
+      operationId: grids_list
+      tags:
+      - grids
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoadGrid'
+          description: ''
+    post:
+      operationId: grids_create
+      tags:
+      - grids
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoadGrid'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RoadGrid'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RoadGrid'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoadGrid'
+          description: ''
+  /api/grids/{id}/:
+    get:
+      operationId: grids_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 road grid 的 唯一整数值。
+        required: true
+      tags:
+      - grids
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoadGrid'
+          description: ''
+  /api/penalties/:
+    get:
+      operationId: penalties_list
+      description: 处罚单元：一笔扣分对应唯一处罚单元，版本链完整可追溯。
+      tags:
+      - penalties
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PenaltyUnit'
+          description: ''
+  /api/penalties/{id}/:
+    get:
+      operationId: penalties_retrieve
+      description: 处罚单元：一笔扣分对应唯一处罚单元，版本链完整可追溯。
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 penalty unit 的 唯一整数值。
+        required: true
+      tags:
+      - penalties
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenaltyUnit'
+          description: ''
+  /api/penalties/{id}/approve-review/:
+    post:
+      operationId: penalties_approve_review_create
+      description: 复核通过：锁定当前处罚版本，之后更正只能追加。
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 penalty unit 的 唯一整数值。
+        required: true
+      tags:
+      - penalties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovePenalty'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApprovePenalty'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApprovePenalty'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenaltyUnit'
+          description: ''
+  /api/penalties/{id}/correct/:
+    post:
+      operationId: penalties_correct_create
+      description: 追加更正版本（历史版本保持不变）。
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 penalty unit 的 唯一整数值。
+        required: true
+      tags:
+      - penalties
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrectPenalty'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CorrectPenalty'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CorrectPenalty'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PenaltyUnit'
+          description: ''
+  /api/photos/:
+    get:
+      operationId: photos_list
+      description: 证据照片。上传即计算精确指纹与感知哈希，并生成疑似重复候选。
+      tags:
+      - photos
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Photo'
+          description: ''
+    post:
+      operationId: photos_create
+      description: 证据照片。上传即计算精确指纹与感知哈希，并生成疑似重复候选。
+      tags:
+      - photos
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Photo'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Photo'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Photo'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+          description: ''
+  /api/photos/{id}/:
+    get:
+      operationId: photos_retrieve
+      description: 证据照片。上传即计算精确指纹与感知哈希，并生成疑似重复候选。
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 photo 的 唯一整数值。
+        required: true
+      tags:
+      - photos
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+          description: ''
+  /api/photos/{id}/link/:
+    post:
+      operationId: photos_link_create
+      description: 人工把照片关联到既有事件（位置/时间合理性校验不通过返回 409）。
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: 标识此 photo 的 唯一整数值。
+        required: true
+      tags:
+      - photos
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LinkPhoto'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LinkPhoto'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LinkPhoto'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Photo'
+          description: ''
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components:
+  schemas:
+    ApprovePenalty:
+      type: object
+      properties:
+        note:
+          type: string
+          default: ''
+    CategoryEnum:
+      enum:
+      - litter
+      - spill
+      - water
+      - other
+      type: string
+      description: |-
+        * `litter` - 暴露垃圾
+        * `spill` - 渣土遗撒
+        * `water` - 积水污渍
+        * `other` - 其他
+    CleaningContract:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        grid:
+          type: integer
+          title: 网格
+        contractor:
+          type: integer
+          title: 承包商
+        valid_from:
+          type: string
+          format: date-time
+          title: 责任开始
+        valid_to:
+          type: string
+          format: date-time
+          nullable: true
+          title: 责任结束
+          description: 为空表示长期有效
+        base_penalty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: 单起问题基础扣分
+        overdue_daily_penalty:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          title: 逾期每日加扣
+        rectify_sla_hours:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          title: 整改时限(小时)
+      required:
+      - base_penalty
+      - contractor
+      - grid
+      - id
+      - valid_from
+    ConfirmCandidate:
+      type: object
+      properties:
+        note:
+          type: string
+          default: ''
+    Contractor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+          title: 承包商编码
+          maxLength: 32
+        name:
+          type: string
+          title: 承包商名称
+          maxLength: 128
+      required:
+      - code
+      - id
+      - name
+    CorrectPenalty:
+      type: object
+      properties:
+        reason:
+          type: string
+          description: 更正原因（必填，追加新版本）
+        base_points:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        escalation_points:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - reason
+    DuplicateCandidate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        photo_a:
+          type: integer
+          readOnly: true
+        photo_b:
+          type: integer
+          readOnly: true
+        exact_match:
+          type: boolean
+          readOnly: true
+          title: 精确指纹一致
+        hamming_distance:
+          type: integer
+          readOnly: true
+          title: 哈希汉明距离
+        distance_m:
+          type: number
+          format: double
+          readOnly: true
+          title: 拍摄点间距(米)
+        time_gap_seconds:
+          type: integer
+          readOnly: true
+          title: 拍摄时间差(秒)
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DuplicateCandidateStatusEnum'
+          readOnly: true
+          title: 状态
+        resolution_note:
+          type: string
+          readOnly: true
+          title: 复核意见
+        resolved_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: 复核时间
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: 生成时间
+      required:
+      - created_at
+      - distance_m
+      - exact_match
+      - hamming_distance
+      - id
+      - photo_a
+      - photo_b
+      - resolution_note
+      - resolved_at
+      - status
+      - time_gap_seconds
+    DuplicateCandidateStatusEnum:
+      enum:
+      - pending
+      - confirmed
+      - rejected
+      type: string
+      description: |-
+        * `pending` - 待复核
+        * `confirmed` - 确认同一问题
+        * `rejected` - 确认非同一问题
+    EscalationResult:
+      type: object
+      properties:
+        created_versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PenaltyVersion'
+      required:
+      - created_versions
+    EvidencePhoto:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          title: 照片
+        sha256:
+          type: string
+          title: 精确指纹
+          maxLength: 64
+        phash_hex:
+          type: string
+          title: 感知哈希
+          maxLength: 16
+        taken_at:
+          type: string
+          format: date-time
+          title: 拍摄时间
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lon:
+              type: number
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusF12Enum'
+          title: 状态
+      required:
+      - id
+      - image
+      - location
+      - phash_hex
+      - sha256
+      - taken_at
+    LinkPhoto:
+      type: object
+      properties:
+        event_id:
+          type: integer
+      required:
+      - event_id
+    PenaltyUnit:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event:
+          type: integer
+          readOnly: true
+        contract:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: 归属合同
+          description: 按事件发生时的责任区间确定
+        contractor:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: 归属承包商
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PenaltyUnitStatusEnum'
+          readOnly: true
+          title: 状态
+        void_reason:
+          type: string
+          readOnly: true
+          title: 作废原因
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: 创建时间
+        current_total:
+          type: string
+          nullable: true
+          readOnly: true
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PenaltyVersion'
+          readOnly: true
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidencePhoto'
+          readOnly: true
+          description: 事件下全部证据照片
+      required:
+      - contract
+      - contractor
+      - created_at
+      - current_total
+      - event
+      - evidence
+      - id
+      - status
+      - versions
+      - void_reason
+    PenaltyUnitStatusEnum:
+      enum:
+      - active
+      - void
+      type: string
+      description: |-
+        * `active` - 有效
+        * `void` - 已作废
+    PenaltyVersion:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+          title: 版本号
+        base_points:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+          title: 基础扣分
+        escalation_points:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+          title: 逾期加扣
+        total_points:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,10}(?:\.\d{0,2})?$
+          readOnly: true
+        reason:
+          type: string
+          readOnly: true
+          title: 版本说明
+        locked:
+          type: boolean
+          readOnly: true
+          title: 已锁定
+        locked_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: 锁定时间
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: 创建时间
+      required:
+      - base_points
+      - created_at
+      - escalation_points
+      - id
+      - locked
+      - locked_at
+      - reason
+      - total_points
+      - version
+    Photo:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        image:
+          type: string
+          format: uri
+          title: 照片
+        sha256:
+          type: string
+          readOnly: true
+          title: 精确指纹
+        phash_hex:
+          type: string
+          readOnly: true
+          title: 感知哈希
+        taken_at:
+          type: string
+          format: date-time
+          title: 拍摄时间
+        lat:
+          type: number
+          format: double
+          writeOnly: true
+        lon:
+          type: number
+          format: double
+          writeOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryEnum'
+          writeOnly: true
+          default: other
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lon:
+              type: number
+          readOnly: true
+        event:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: 关联事件
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusF12Enum'
+          readOnly: true
+          title: 状态
+        uploaded_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: 上传时间
+      required:
+      - event
+      - id
+      - image
+      - lat
+      - location
+      - lon
+      - phash_hex
+      - sha256
+      - status
+      - taken_at
+      - uploaded_at
+    ProblemEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        grid:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: 所属网格
+        category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryEnum'
+          title: 问题类别
+        location:
+          type: object
+          properties:
+            lat:
+              type: number
+            lon:
+              type: number
+          readOnly: true
+        occurred_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: 发生时间
+          description: 取自首张证据照片的拍摄时间
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ProblemEventStatusEnum'
+          readOnly: true
+          title: 状态
+        rectification_deadline:
+          type: string
+          format: date-time
+          readOnly: true
+          title: 整改期限
+        rectified_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: 整改完成时间
+        void_reason:
+          type: string
+          readOnly: true
+          title: 作废原因
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: 录入时间
+        photo_ids:
+          type: array
+          items:
+            type: integer
+          readOnly: true
+        penalty_unit_id:
+          type: integer
+          nullable: true
+          readOnly: true
+      required:
+      - created_at
+      - grid
+      - id
+      - location
+      - occurred_at
+      - penalty_unit_id
+      - photo_ids
+      - rectification_deadline
+      - rectified_at
+      - status
+      - void_reason
+    ProblemEventStatusEnum:
+      enum:
+      - open
+      - rectifying
+      - rectified
+      - void
+      type: string
+      description: |-
+        * `open` - 待整改
+        * `rectifying` - 整改中
+        * `rectified` - 已整改
+        * `void` - 已作废
+    RectificationReport:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        event:
+          type: integer
+          readOnly: true
+        idempotency_key:
+          type: string
+          title: 幂等键
+          maxLength: 64
+        reported_at:
+          type: string
+          format: date-time
+          title: 整改上报时间
+        note:
+          type: string
+          title: 备注
+          maxLength: 255
+        received_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: 接收时间
+      required:
+      - event
+      - id
+      - idempotency_key
+      - received_at
+      - reported_at
+    RejectCandidate:
+      type: object
+      properties:
+        note:
+          type: string
+          default: ''
+        void_newer_photo:
+          type: boolean
+          default: false
+          description: 误传场景：作废后上传的照片及其孤立事件/处罚
+    RoadGrid:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+          title: 网格编码
+          maxLength: 32
+        name:
+          type: string
+          title: 网格名称
+          maxLength: 128
+        geom:
+          description: GeoJSON Polygon/MultiPolygon
+      required:
+      - code
+      - geom
+      - id
+      - name
+    StatusF12Enum:
+      enum:
+      - linked
+      - void
+      type: string
+      description: |-
+        * `linked` - 已关联事件
+        * `void` - 已作废
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid
